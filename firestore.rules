@@ -1,0 +1,49 @@
+rules_version = '2';
+
+// Each family is isolated: only devices listed in families/{fid}/members can read or write it.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    function isMember(fid) {
+      return signedIn() && exists(/databases/$(database)/documents/families/$(fid)/members/$(request.auth.uid));
+    }
+
+    function validCode(fid, code) {
+      let c = get(/databases/$(database)/documents/joinCodes/$(code));
+      return c.data.familyId == fid && c.data.expiresAt > request.time;
+    }
+
+    // Join codes: readable one by one (never listable), created by family members.
+    match /joinCodes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if isMember(request.resource.data.familyId)
+                    && request.resource.data.keys().hasOnly(['familyId', 'kind', 'expiresAt']);
+      allow delete: if signedIn() && isMember(resource.data.familyId);
+      allow update: if false;
+    }
+
+    match /families/{fid} {
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow read, update: if isMember(fid);
+      allow delete: if false;
+
+      // A device joins by creating its own member doc: either the family owner, or with a valid code.
+      match /members/{uid} {
+        allow read: if isMember(fid);
+        allow create: if signedIn() && uid == request.auth.uid && (
+          get(/databases/$(database)/documents/families/$(fid)).data.ownerUid == request.auth.uid
+          || (request.resource.data.code is string && validCode(fid, request.resource.data.code))
+        );
+        allow update, delete: if isMember(fid);
+      }
+
+      // kids, tasks, rewards, completions, redemptions, ledger
+      match /{sub}/{docId} {
+        allow read, write: if sub != 'members' && isMember(fid);
+      }
+    }
+  }
+}
