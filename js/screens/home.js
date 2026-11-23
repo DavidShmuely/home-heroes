@@ -41,9 +41,9 @@ export const home = {
     return `<main class="home ${isPhone ? 'phone' : ''}">
       <header class="topbar">
         <img src="assets/icons/star.svg" alt="" width="58" height="58" class="mascot">
-        <div class="hello"><h1>${greeting()}, ${esc(f.name || 'משפחה')}!</h1><div class="muted">${todayLabel()} · לוחצים על משימה כשמסיימים</div></div>
+        <div class="hello"><h1>${greeting()}, ${esc(f.name || 'משפחה')}!</h1><div class="muted">${todayLabel()}<span class="hint"> · לוחצים על משימה כשמסיימים</span></div></div>
         ${D.S.online ? '' : `<span class="offline">${svg.wifiOff} אין חיבור – נשמר ויסונכרן</span>`}
-        <button class="btn white parent-btn" data-act="parent">${svg.lock} ${isPhone ? 'ניהול' : 'הורים'}${pend ? `<span class="badge">${pend}</span>` : ''}</button>
+        <button class="btn white parent-btn" data-act="parent">${svg.lock} <span class="lbl-txt">${isPhone ? 'ניהול' : 'הורים'}</span>${pend ? `<span class="badge">${pend}</span>` : ''}</button>
       </header>
       ${isPhone && pend ? `<a class="pending-banner" href="#/parent/approvals">${svg.clock} ${pend} מחכים לאישור שלך – לחצו לאישור</a>` : ''}
       ${kids.length ? `<section class="kgrid cols-${Math.min(kids.length, 6)}">${kids.map(kidColumn).join('')}</section>`

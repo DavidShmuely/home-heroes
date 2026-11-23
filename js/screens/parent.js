@@ -4,9 +4,14 @@ import { esc, avatarHTML, iconImg, svg, toast, openModal, closeModal, qrSVG, cel
 import { TASK_ICONS, REWARD_ICONS, DAYS } from '../assets.js';
 import { lockParent } from '../session.js';
 
+const TAB_ICON = (d) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const TABS = [
-  ['approvals', 'אישורים'], ['kids', 'ילדים'], ['tasks', 'משימות'],
-  ['rewards', 'פרסים'], ['devices', 'מכשירים'], ['settings', 'הגדרות']
+  ['approvals', 'אישורים', TAB_ICON('<path d="M5 12l5 5L20 7"/>')],
+  ['kids', 'ילדים', TAB_ICON('<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4 4 0 0 1 7 0"/>')],
+  ['tasks', 'משימות', TAB_ICON('<path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>')],
+  ['rewards', 'פרסים', TAB_ICON('<path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7c-2-4-6-3-5 0M12 7c2-4 6-3 5 0"/>')],
+  ['devices', 'מכשירים', TAB_ICON('<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>')],
+  ['settings', 'הגדרות', TAB_ICON('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>')]
 ];
 const P = { taskKid: null, code: null, codeExp: 0 };
 
@@ -15,8 +20,8 @@ function shell(tab, body) {
   return `<main class="parent">
     <header class="parent-head">
       <span class="lock-ic">${svg.lock}</span><h1>מצב הורה</h1>
-      <nav class="tabs" aria-label="ניווט הורה">${TABS.map(([id, label]) => `<a href="#/parent/${id}" class="${id === tab ? 'on' : ''}" ${id === tab ? 'aria-current="page"' : ''}>${label}${id === 'approvals' && pend ? ` · ${pend}` : ''}</a>`).join('')}</nav>
-      <button class="btn white" data-act="exit">${D.S.role === 'parent' ? 'למסך הילדים' : 'נעילה וחזרה'}</button>
+      <nav class="tabs" aria-label="ניווט הורה">${TABS.map(([id, label, ic]) => `<a href="#/parent/${id}" class="${id === tab ? 'on' : ''}" ${id === tab ? 'aria-current="page"' : ''}>${ic}<span>${label}</span>${id === 'approvals' && pend ? `<b class="tab-badge">${pend}</b>` : ''}</a>`).join('')}</nav>
+      <button class="btn white exit-btn" data-act="exit">${D.S.role === 'parent' ? 'למסך הילדים' : 'נעילה וחזרה'}</button>
     </header>
     <div class="parent-body">${body}</div>
   </main>`;
@@ -32,8 +37,8 @@ function approvals() {
       ${avatarHTML(k?.avatar, 56)}
       <div class="grow"><b>${esc(k?.name || '?')} · ${esc(c.title)}</b><small class="muted">${c.date !== D.dateKey() ? 'מ־' + c.date : 'היום'}${c.by ? ' · ' + esc(c.by) : ''}</small></div>
       <span class="plus">+${c.stars || 1}</span>
-      <button class="btn ghost" data-act="reject" data-id="${c.id}">לא עכשיו</button>
-      <button class="btn green" data-act="approve" data-id="${c.id}">אישור</button>
+      <div class="arow-btns"><button class="btn ghost" data-act="reject" data-id="${c.id}">לא עכשיו</button>
+      <button class="btn green" data-act="approve" data-id="${c.id}">אישור</button></div>
     </div>`;
   }).join('');
   const reds = D.S.redemptions.map((r) => {
@@ -42,8 +47,8 @@ function approvals() {
       ${avatarHTML(k?.avatar, 56)}
       <div class="grow"><b>${esc(k?.name || '?')} רוצה: ${esc(r.title)}</b><small class="muted">יתרה: ${k?.stars || 0} כוכבים</small></div>
       <span class="minus">−${r.cost}</span>
-      <button class="btn ghost" data-act="rejectR" data-id="${r.id}">לא עכשיו</button>
-      <button class="btn green" data-act="approveR" data-id="${r.id}">אישור</button>
+      <div class="arow-btns"><button class="btn ghost" data-act="rejectR" data-id="${r.id}">לא עכשיו</button>
+      <button class="btn green" data-act="approveR" data-id="${r.id}">אישור</button></div>
     </div>`;
   }).join('');
   const bonus = D.S.kids.map((k) => `<button class="bonus-kid" data-act="bonus" data-id="${k.id}" aria-label="כוכב בונוס ל${esc(k.name)}">${avatarHTML(k.avatar, 56)}<span>${esc(k.name)}</span></button>`).join('');
@@ -69,8 +74,8 @@ function kids() {
     <div class="list">${D.S.kids.map((k) => `<div class="lrow">${avatarHTML(k.avatar, 56)}
       <div class="grow"><b>${esc(k.name)}</b><small class="muted">${k.mode === 'young' ? 'מצב קטנטנים (3–5)' : 'גילאי 6–12'} · רמה ${D.level(k.earned || 0).lvl}</small></div>
       ${starPill(k.stars)}
-      <button class="btn ghost" data-act="adjust" data-id="${k.id}">תיקון כוכבים</button>
-      <button class="btn white" data-act="editKid" data-id="${k.id}">${svg.edit} עריכה</button></div>`).join('') || '<p class="muted">עוד אין ילדים.</p>'}</div>
+      <div class="lrow-btns"><button class="btn ghost" data-act="adjust" data-id="${k.id}">תיקון כוכבים</button>
+      <button class="btn white" data-act="editKid" data-id="${k.id}">${svg.edit} עריכה</button></div></div>`).join('') || '<p class="muted">עוד אין ילדים.</p>'}</div>
   </section>`;
 }
 function kidForm(k = {}) {
@@ -99,7 +104,7 @@ function tasks() {
     <div class="list">${list.map((t) => `<div class="lrow ${t.active === false ? 'off' : ''}">${iconImg(t.icon, 48)}
       <div class="grow"><b>${esc(t.title)}</b><small class="muted">${(t.days && t.days.length < 7) ? 'ימים: ' + t.days.map((d) => DAYS[d]).join(' ') : 'כל יום'}${t.active === false ? ' · מושבתת' : ''}</small></div>
       <span class="plus">+${t.stars || 1}</span>
-      <button class="btn white" data-act="editTask" data-id="${t.id}">${svg.edit} עריכה</button></div>`).join('') || '<p class="muted">אין משימות עדיין.</p>'}</div>
+      <button class="btn white icon-only" data-act="editTask" data-id="${t.id}" aria-label="עריכת ${esc(t.title)}">${svg.edit}<span>עריכה</span></button></div>`).join('') || '<p class="muted">אין משימות עדיין.</p>'}</div>
   </section>`;
 }
 function taskForm(t = {}) {
@@ -123,7 +128,7 @@ function rewardsTab() {
     <div class="row-between"><h2>פרסים</h2><button class="btn purple" data-act="addReward">${svg.plus} פרס חדש</button></div>
     <div class="list">${D.S.rewards.map((r) => `<div class="lrow ${r.active === false ? 'off' : ''}">${iconImg(r.icon, 48)}
       <div class="grow"><b>${esc(r.title)}</b>${r.active === false ? '<small class="muted">מוסתר</small>' : ''}</div>
-      ${starPill(r.cost)}<button class="btn white" data-act="editReward" data-id="${r.id}">${svg.edit} עריכה</button></div>`).join('') || '<p class="muted">אין פרסים עדיין.</p>'}</div>
+      ${starPill(r.cost)}<button class="btn white icon-only" data-act="editReward" data-id="${r.id}" aria-label="עריכת ${esc(r.title)}">${svg.edit}<span>עריכה</span></button></div>`).join('') || '<p class="muted">אין פרסים עדיין.</p>'}</div>
   </section>`;
 }
 function rewardForm(r = {}) {
