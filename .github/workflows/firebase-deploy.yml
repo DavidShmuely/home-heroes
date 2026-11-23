@@ -1,0 +1,39 @@
+name: Deploy to Firebase
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Write service account key
+        env:
+          SA_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA_JSON" ]; then echo "::error::Missing secret FIREBASE_SERVICE_ACCOUNT"; exit 1; fi
+          printf '%s' "$SA_JSON" > "$RUNNER_TEMP/sa.json"
+
+      - name: Deploy hosting and Firestore rules
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sa.json
+          PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+        run: |
+          if [ -z "$PROJECT_ID" ]; then echo "::error::Missing repository variable FIREBASE_PROJECT_ID"; exit 1; fi
+          npx --yes firebase-tools@latest deploy --only hosting,firestore:rules --project "$PROJECT_ID" --non-interactive
+
+      - name: Remove key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/sa.json"

@@ -2,9 +2,11 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import * as fs from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { firebaseConfig } from './config.js';
+import { loadConfig } from './config.js';
 
-const app = initializeApp(firebaseConfig);
+const config = await loadConfig();
+if (!config) throw new Error('Firebase config missing');
+const app = initializeApp(config);
 export const auth = getAuth(app);
 
 let dbInstance;

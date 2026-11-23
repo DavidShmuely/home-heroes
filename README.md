@@ -1,18 +1,21 @@
 # גיבורי הבית – אפליקציה משפחתית למשימות ומעשים טובים
 
 אפליקציית WEB (PWA) לטאבלט משפחתי ולטלפונים של ההורים.
-- **אחסון האתר:** GitHub Pages, בחינם.
+- **אחסון האתר:** Firebase Hosting בחינם, עם פריסה אוטומטית מ־GitHub (או GitHub Pages כחלופה).
 - **נתונים וסנכרון:** Firebase במסלול **Spark** החינמי. אין בו כרטיס אשראי, ולכן אין שום אפשרות לחיוב.
 - **הפרדה:** כל משפחה מבודדת לגמרי, וחוקי האבטחה בקובץ `firestore.rules` אוכפים את זה.
 - **התקנה:** אין צורך בחנות אפליקציות ואין צורך בחשבון Google לילדים.
 
 ---
 
-## הקמה ראשונה (כ־15 דקות, פעם אחת)
+## הקמה ראשונה (כ־20 דקות, פעם אחת)
+
+האתר מתארח ב־**Firebase Hosting** (חינם, ה־repository יכול להישאר פרטי). כל `push` לענף `main` מעלה אוטומטית את האתר **ואת חוקי האבטחה**, דרך GitHub Actions.
 
 ### 1. יוצרים פרויקט Firebase
 1. נכנסים ל־https://console.firebase.google.com ולוחצים **Create a project**. אפשר לוותר על Google Analytics.
 2. הפרויקט נוצר במסלול **Spark** (חינמי). **לא** משדרגים ל־Blaze.
+3. רושמים בצד את ה־**Project ID**, שמופיע ב־Project settings (למשל `home-heroes-1a2b3`).
 
 ### 2. מפעילים כניסה אנונימית
 1. בתפריט: **Build › Authentication › Get started**.
@@ -21,21 +24,47 @@
 ### 3. יוצרים מסד נתונים
 1. בתפריט: **Build › Firestore Database › Create database**.
 2. בוחרים מיקום קרוב (למשל `europe-west`) ו־**Production mode**.
-3. בלשונית **Rules** מוחקים את מה שיש, מדביקים את כל התוכן של הקובץ `firestore.rules` ולוחצים **Publish**.
 
-### 4. מחברים את הקוד לפרויקט
-1. לוחצים על גלגל השיניים, ואז **Project settings**.
-2. תחת **Your apps** לוחצים על אייקון ה־Web (`</>`), נותנים שם ולוחצים **Register**.
-3. מעתיקים את הערכים מתוך `firebaseConfig` לקובץ `js/config.js`, במקום כל ה־`PASTE_...`.
-   > הערכים האלה אינם סוד. האבטחה מגיעה מחוקי Firestore.
+את החוקים לא צריך להדביק: הם יעלו אוטומטית בפריסה הראשונה.
 
-### 5. מעלים ל־GitHub Pages
-1. יוצרים repository חדש ב־GitHub, למשל `home-heros`, ומעלים אליו את כל הקבצים, כולל הקובץ `.nojekyll`.
-2. נכנסים ל־**Settings › Pages**, בוחרים **Deploy from a branch** ו־`main` / `(root)`, ושומרים.
-3. אחרי דקה־שתיים האתר זמין בכתובת: `https://<שם-המשתמש>.github.io/home-heros/`
+### 4. רושמים אפליקציית Web ומפעילים Hosting
+1. בגלגל השיניים בוחרים **Project settings**, ותחת **Your apps** לוחצים על אייקון ה־Web (`</>`).
+2. נותנים שם, מסמנים **Also set up Firebase Hosting** ולוחצים **Register app**.
+3. בשלבים הבאים של האשף לוחצים **Next** עד הסוף. לא צריך להתקין כלום.
 
-### 6. מאשרים את הדומיין ב־Firebase
-ב־**Authentication › Settings › Authorized domains** לוחצים **Add domain** ומוסיפים `<שם-המשתמש>.github.io`.
+> פרטי ה־config נטענים אוטומטית מ־Firebase Hosting, ולא צריך להדביק אותם ב־`js/config.js`.
+
+### 5. יוצרים חשבון שירות לפריסה
+1. נכנסים ל־https://console.cloud.google.com/iam-admin/serviceaccounts ובוחרים את הפרויקט למעלה.
+2. לוחצים **Create service account**, בשם `github-deploy`, ולוחצים **Create and continue**.
+3. ב־Role בוחרים **Firebase Admin**, ולוחצים **Continue** ואז **Done**.
+4. לוחצים על החשבון שנוצר, נכנסים ללשונית **Keys** ובוחרים **Add key › Create new key › JSON**. קובץ יורד למחשב.
+
+### 6. מחברים את GitHub
+ב־repository נכנסים ל־**Settings › Secrets and variables › Actions**:
+1. בלשונית **Secrets** לוחצים **New repository secret**:
+   - Name: `FIREBASE_SERVICE_ACCOUNT`
+   - Secret: כל התוכן של קובץ ה־JSON שירד
+2. בלשונית **Variables** לוחצים **New repository variable**:
+   - Name: `FIREBASE_PROJECT_ID`
+   - Value: ה־Project ID משלב 1
+3. **מוחקים את קובץ ה־JSON מהמחשב.** זה מפתח רגיש.
+
+### 7. פריסה ראשונה
+1. ב־repository נכנסים ל־**Actions** ובוחרים **Deploy to Firebase**.
+2. לוחצים **Run workflow** (בהמשך זה ירוץ לבד בכל push).
+3. כשמופיע ✓ ירוק, האתר זמין בכתובת: `https://<PROJECT_ID>.web.app`
+
+**אם הפריסה נכשלת:**
+- **הודעה על `serviceusage`:** מוסיפים לחשבון השירות גם את התפקיד **Service Usage Consumer**, ומריצים שוב.
+- **הודעה על Firestore:** מוודאים ששלב 3 בוצע.
+
+### אחסון חלופי: GitHub Pages
+אם ה־repository ציבורי, אפשר לוותר על שלבים 5–7:
+1. מדביקים את ה־config ב־`js/config.js`.
+2. מפעילים **Settings › Pages** מענף `main`.
+3. מדביקים ידנית את `firestore.rules` ב־**Firestore › Rules**.
+4. מוסיפים את הדומיין של GitHub Pages ב־**Authentication › Settings › Authorized domains**.
 
 ---
 
@@ -90,7 +119,7 @@
 python3 -m http.server 8080
 # then open http://localhost:8080
 ```
-(ב־Firebase, `localhost` מאושר כברירת מחדל.)
+(להרצה מקומית מדביקים את ה־config ב־`js/config.js`. ב־Firebase, `localhost` מאושר כברירת מחדל.)
 
 ---
 
@@ -106,9 +135,11 @@ python3 -m http.server 8080
 index.html            app entry
 manifest.webmanifest  PWA manifest
 sw.js                 offline cache
-firestore.rules       security rules (paste into Firebase)
+firestore.rules       security rules (deployed automatically)
+firebase.json         Firebase Hosting + rules config
+.github/workflows/    auto-deploy on push to main
 css/app.css           all styles
-js/config.js          your Firebase config  <-- edit
+js/config.js          Firebase config (auto on Firebase Hosting)
 js/fb.js              Firebase init
 js/data.js            data model + actions
 js/ui.js              shared UI (avatars, modal, PIN, sounds, celebration)

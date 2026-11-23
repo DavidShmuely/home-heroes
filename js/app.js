@@ -1,5 +1,5 @@
 // App shell: router, rendering, event delegation, wake lock, celebrations.
-import { isConfigured } from './config.js';
+import { loadConfig } from './config.js';
 
 const root = document.getElementById('app');
 
@@ -7,11 +7,11 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW registration failed', e));
 }
 
-if (!isConfigured()) {
+if (!(await loadConfig())) {
   root.innerHTML = `<main class="center-screen">
     <img src="assets/icons/star.svg" alt="" width="110" height="110">
     <h1>כמעט מוכן!</h1>
-    <p class="lead">צריך להדביק את פרטי Firebase בקובץ <code dir="ltr">js/config.js</code>.<br>ההוראות המלאות בקובץ README.</p>
+    <p class="lead">לא נמצאו פרטי Firebase. ב־Firebase Hosting הם נטענים אוטומטית;<br>באחסון אחר מדביקים אותם בקובץ <code dir="ltr">js/config.js</code>. ההוראות בקובץ README.</p>
   </main>`;
 } else {
   start().catch((e) => {
