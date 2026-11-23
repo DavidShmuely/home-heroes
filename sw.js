@@ -1,6 +1,6 @@
 // Service worker: caches the app shell so the tablet opens even without internet.
 // Bump VERSION whenever you deploy changes.
-const VERSION = 'home-heroes-v3';
+const VERSION = 'home-heroes-v4';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/app.css',
   'js/app.js', 'js/config.js', 'js/fb.js', 'js/data.js', 'js/ui.js', 'js/assets.js', 'js/session.js',

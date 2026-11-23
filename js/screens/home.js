@@ -36,7 +36,7 @@ function kidColumn(kid) {
       ${starPill(kid.stars)}
     </a>
     <div class="kprog"><div class="bar"><i style="width:${pct}%"></i></div><b>${all ? 'הכל!' : `${done}/${tasks.length}`}</b></div>
-    <div class="tlist ${kid.mode === 'young' ? 'young' : ''}">${tasks.map((t) => (kid.mode === 'young' ? youngTile(kid, t) : taskRow(kid, t))).join('') || '<div class="free-day">יום חופשי!</div>'}</div>
+    <div class="tlist ${kid.mode === 'young' ? 'ylist' : ''}">${tasks.map((t) => (kid.mode === 'young' ? youngTile(kid, t) : taskRow(kid, t))).join('') || '<div class="free-day">יום חופשי!</div>'}</div>
   </article>`;
 }
 
