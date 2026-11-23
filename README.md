@@ -45,15 +45,13 @@
 1. בלשונית **Secrets** לוחצים **New repository secret**:
    - Name: `FIREBASE_SERVICE_ACCOUNT`
    - Secret: כל התוכן של קובץ ה־JSON שירד
-2. בלשונית **Variables** לוחצים **New repository variable**:
-   - Name: `FIREBASE_PROJECT_ID`
-   - Value: ה־Project ID משלב 1
+2. (לא חובה) בלשונית **Variables** אפשר להגדיר `FIREBASE_PROJECT_ID`. ברירת המחדל היא `home-heroes-9d7c3`.
 3. **מוחקים את קובץ ה־JSON מהמחשב.** זה מפתח רגיש.
 
 ### 7. פריסה ראשונה
 1. ב־repository נכנסים ל־**Actions** ובוחרים **Deploy to Firebase**.
 2. לוחצים **Run workflow** (בהמשך זה ירוץ לבד בכל push).
-3. כשמופיע ✓ ירוק, האתר זמין בכתובת: `https://<PROJECT_ID>.web.app`
+3. כשמופיע ✓ ירוק, האתר זמין בכתובת: `https://home-heroes-9d7c3.web.app`
 
 **אם הפריסה נכשלת:**
 - **הודעה על `serviceusage`:** מוסיפים לחשבון השירות גם את התפקיד **Service Usage Consumer**, ומריצים שוב.
