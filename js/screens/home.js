@@ -1,6 +1,6 @@
 // Main family screen: one column per kid with today's tasks.
 import * as D from '../data.js';
-import { esc, avatarHTML, starPill, iconImg, svg, greeting, todayLabel, toast, sound, pinPad, closeModal } from '../ui.js';
+import { esc, avatarHTML, starPill, iconImg, svg, greeting, todayLabel, toast, sound, pinPad, closeModal, speak } from '../ui.js';
 import { color } from '../assets.js';
 import { unlockParent, isParentUnlocked } from '../session.js';
 
@@ -11,6 +11,16 @@ export function taskRow(kid, t) {
   const label = st === 'done' ? 'בוצע' : st === 'pending' ? 'מחכה לאישור' : 'לחצו כשסיימתם';
   return `<button class="trow ${st}" data-act="tap" data-kid="${kid.id}" data-task="${t.id}" aria-label="${esc(t.title)} – ${label}">
     ${iconImg(t.icon, 40)}<span class="ttl">${esc(t.title)}</span>${mark}</button>`;
+}
+
+// Big picture tile for young kids (3–5) on the family screen.
+function youngTile(kid, t) {
+  const st = D.taskState(t.id);
+  const mark = st === 'done' ? `<span class="st done">${svg.check}</span>`
+    : st === 'pending' ? `<span class="st pending">${svg.clock}</span>` : '';
+  const label = st === 'done' ? 'בוצע' : st === 'pending' ? 'מחכה לאישור' : 'לחצו כשסיימתם';
+  return `<button class="ytrow ${st}" data-act="tap" data-kid="${kid.id}" data-task="${t.id}" aria-label="${esc(t.title)} – ${label}">
+    <span class="yt-ic">${iconImg(t.icon, 64)}</span><span class="yt-ttl">${esc(t.title)}</span>${mark}</button>`;
 }
 
 function kidColumn(kid) {
@@ -26,7 +36,7 @@ function kidColumn(kid) {
       ${starPill(kid.stars)}
     </a>
     <div class="kprog"><div class="bar"><i style="width:${pct}%"></i></div><b>${all ? 'הכל!' : `${done}/${tasks.length}`}</b></div>
-    <div class="tlist">${tasks.map((t) => taskRow(kid, t)).join('') || '<div class="free-day">יום חופשי!</div>'}</div>
+    <div class="tlist ${kid.mode === 'young' ? 'young' : ''}">${tasks.map((t) => (kid.mode === 'young' ? youngTile(kid, t) : taskRow(kid, t))).join('') || '<div class="free-day">יום חופשי!</div>'}</div>
   </article>`;
 }
 
@@ -70,6 +80,7 @@ export async function tapTask(kidId, taskId) {
   try {
     if (st === 'todo') {
       sound('tap');
+      if (kid.mode === 'young') speak(`כל הכבוד! ${task.title}`);
       await D.markTask(kid, task);
       toast(`כל הכבוד ${kid.name}! נשלח לאישור הורה`);
     } else if (st === 'pending') {

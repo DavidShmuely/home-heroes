@@ -138,6 +138,17 @@ code { background: #E6EAF7; padding: 2px 6px; border-radius: 6px; }
 .st.todo { border: 3px dashed #AAB2CC; }
 .st.done { background: var(--green-mid); border: 2px solid var(--green); color: #fff; }
 .st.pending { background: var(--yellow); border: 2px solid #8A5A00; color: var(--ink); }
+.tlist.young { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; align-content: start; }
+.ytrow { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 6px; min-height: 140px;
+  border-radius: 22px; border: 3px dashed var(--accent); background: #fff; cursor: pointer; color: var(--ink); transition: transform .08s; }
+.ytrow:active { transform: scale(.96); }
+.yt-ic { width: 88px; height: 88px; border-radius: 50%; background: var(--tint); display: grid; place-items: center; }
+.yt-ic img { width: 66px; height: 66px; }
+.yt-ttl { font-size: 19px; font-weight: 800; }
+.ytrow.done { background: var(--green-tint); border: 3px solid var(--green-mid); }
+.ytrow.pending { background: var(--yellow-tint); border: 3px solid var(--yellow); }
+.ytrow.done .yt-ic, .ytrow.pending .yt-ic { background: #fff; }
+.ytrow .st { position: absolute; top: 8px; left: 8px; width: 32px; height: 32px; }
 .jar { display: flex; align-items: center; gap: 16px; background: var(--ink); color: #fff; border-radius: 22px; padding: 10px 22px; flex-wrap: wrap; }
 .jar .bar { background: #3A3F66; height: 16px; min-width: 120px; }
 .jar .bar i { background: var(--yellow); }
@@ -342,7 +353,7 @@ code { background: #E6EAF7; padding: 2px 6px; border-radius: 6px; }
   .parent-btn { min-height: 44px; padding: 8px 12px; flex-shrink: 0; }
   .offline { position: fixed; top: 8px; left: 50%; transform: translateX(-50%); z-index: 40; }
   .pending-banner { padding: 12px 14px; font-size: 15px; }
-  .kgrid[class*="cols-"] { grid-template-columns: 1fr; gap: 12px; }
+  .kgrid[class*="cols-"] { grid-template-columns: 1fr; gap: 12px; flex: none; align-content: start; }
   .kcol { border-width: 3px; border-radius: 22px; }
   .khead { flex-direction: row; justify-content: flex-start; padding: 10px 12px; gap: 10px; }
   .khead .avatar { width: 52px !important; height: 52px !important; }
@@ -357,6 +368,12 @@ code { background: #E6EAF7; padding: 2px 6px; border-radius: 6px; }
   .st { width: 24px; height: 24px; }
   .st svg { width: 14px; height: 14px; }
   .free-day { grid-column: 1 / -1; padding: 10px; }
+  .tlist.young { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .ytrow { min-height: 0; padding: 8px 4px; gap: 4px; border-radius: 16px; }
+  .yt-ic { width: 62px; height: 62px; }
+  .yt-ic img { width: 46px; height: 46px; }
+  .yt-ttl { font-size: 15px; }
+  .ytrow .st { width: 24px; height: 24px; top: 4px; left: 4px; }
   .jar { padding: 10px 14px; gap: 8px 12px; border-radius: 18px; }
   .jar img { width: 40px; height: 40px; }
   .jar .bar { flex-basis: 100%; order: 3; min-width: 0; }
